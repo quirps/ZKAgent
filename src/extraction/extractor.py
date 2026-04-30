@@ -22,7 +22,8 @@ Extract structured information from job postings exactly as described.
 - If a field is genuinely unknown, use null or the UNKNOWN enum value
 - Use confidence (0.0-1.0) to reflect how complete and unambiguous the posting was
 - Use extraction_notes to flag contradictions, unusual patterns, or low-confidence fields
-Return only valid JSON matching the schema provided."""
+YOU MUST RESPOND WITH ONLY A JSON OBJECT. No markdown, no backticks, no explanation.
+Start your response with { and end with }."""
 
 def extract_job_posting(raw_text: str) -> JobPosting:
     """
@@ -53,13 +54,12 @@ Return only the JSON object, no markdown, no explanation."""
         start = time.perf_counter()
         
         try:
-            response = litellm.completion(
+         response = litellm.completion(
     model=settings.primary_model,
     messages=messages,
     temperature=0.1,
-    response_format={"type": "json_object"},
-    fallbacks=[{"model": settings.fast_model}],  # dict format, not string
-    num_retries=2,
+    # Remove this line entirely:
+    # response_format={"type": "json_object"},
 )
 
             latency_ms = (time.perf_counter() - start) * 1000

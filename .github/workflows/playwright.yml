@@ -22,7 +22,7 @@ jobs:
 
       - name: Install Python dependencies
         run: uv sync
-        
+
       - name: Write env file
         run: |
           echo "GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" >> .env
@@ -44,6 +44,19 @@ jobs:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
 
+      - name: Verify API health
+        run: |
+          echo "=== Health Check ==="
+          curl -s http://localhost:8000/health
+
+      - name: Debug extraction endpoint
+        run: |
+          echo "=== Test extraction call ==="
+          curl -s -X POST http://localhost:8000/extract \
+            -H "Content-Type: application/json" \
+            -d '{"text": "Senior Python Engineer at Acme. Remote. $160k-$200k. Python required."}' \
+            | python3 -m json.tool || echo "Raw response above"
+            
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
