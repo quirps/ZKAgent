@@ -4,8 +4,11 @@ from pydantic import ValidationError
 from loguru import logger
 from dotenv import load_dotenv
 import json
+from pathlib import Path
+from dotenv import load_dotenv
 
-load_dotenv()
+# Explicit path — works regardless of working directory
+load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 from config.settings import settings
 from .models import JobPosting
