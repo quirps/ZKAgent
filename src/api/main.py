@@ -24,7 +24,14 @@ ExtractionResponse.model_rebuild()
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    import os
+    groq_present = bool(os.getenv("GROQ_API_KEY"))
+    google_present = bool(os.getenv("GOOGLE_API_KEY"))
+    return {
+        "status": "ok",
+        "groq_key_present": groq_present,
+        "google_key_present": google_present,
+    }
 
 @app.post("/extract", response_model=ExtractionResponse)
 def extract(request: ExtractionRequest):
