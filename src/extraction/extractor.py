@@ -51,11 +51,13 @@ Return only the JSON object, no markdown, no explanation."""
         
         try:
             response = litellm.completion(
-                model=settings.primary_model,
-                messages=messages,
-                temperature=0.1,  # low but not zero — we want consistency, not brittleness
-                response_format={"type": "json_object"},
-            )
+    model=settings.primary_model,
+    messages=messages,
+    temperature=0.1,
+    response_format={"type": "json_object"},
+    fallbacks=[{"model": settings.fast_model}],  # dict format, not string
+    num_retries=2,
+)
 
             latency_ms = (time.perf_counter() - start) * 1000
             raw_output = response.choices[0].message.content

@@ -83,12 +83,13 @@ def run_agent(query: str, max_iterations: int = 8) -> tuple[str, AgentTrace]:
         # ── LLM CALL ──────────────────────────────────────────────
         start = time.perf_counter()
         response = litellm.completion(
-            model=settings.primary_model,
-            messages=messages,
-            tools=TOOL_SCHEMAS,
-            tool_choice="auto",
-            temperature=0.2,
-        )
+    model=settings.primary_model,
+    messages=messages,
+    temperature=0.1,
+    response_format={"type": "json_object"},
+    fallbacks=[{"model": settings.fast_model}],  # dict format, not string
+    num_retries=2,
+)
         latency_ms = (time.perf_counter() - start) * 1000
         
         message = response.choices[0].message
