@@ -3,9 +3,8 @@ import litellm
 from pydantic import ValidationError
 from loguru import logger
 from dotenv import load_dotenv
-import json
 from pathlib import Path
-from dotenv import load_dotenv
+import json
 
 # Explicit path — works regardless of working directory
 load_dotenv(Path(__file__).parent.parent.parent / ".env")
@@ -25,13 +24,14 @@ Extract structured information from job postings exactly as described.
 YOU MUST RESPOND WITH ONLY A JSON OBJECT. No markdown, no backticks, no explanation.
 Start your response with { and end with }."""
 
+
 def extract_job_posting(raw_text: str) -> JobPosting:
     """
     Extract a structured JobPosting from raw job posting text.
     Includes retry logic on validation failure.
     """
     schema = JobPosting.model_json_schema()
-    
+
     messages = [
         {
             "role": "user",
@@ -43,7 +43,7 @@ Schema:
 Job Posting:
 {raw_text}
 
-Return only the JSON object, no markdown, no explanation."""
+Return only the JSON object, no markdown, no explanation.""",
         }
     ]
 
@@ -52,15 +52,13 @@ Return only the JSON object, no markdown, no explanation."""
 
     for attempt in range(max_retries):
         start = time.perf_counter()
-        
+
         try:
-         response = litellm.completion(
-    model=settings.primary_model,
-    messages=messages,
-    temperature=0.1,
-    # Remove this line entirely:
-    # response_format={"type": "json_object"},
-)
+            response = litellm.completion(
+                model=settings.primary_model,
+                messages=messages,
+                temperature=0.1,
+            )
 
             latency_ms = (time.perf_counter() - start) * 1000
             raw_output = response.choices[0].message.content
@@ -79,18 +77,24 @@ Return only the JSON object, no markdown, no explanation."""
 
         except ValidationError as e:
             last_error = e
-            logger.warning(f"Validation failed attempt {attempt + 1}: {e.error_count()} errors")
-            
+            logger.warning(
+                f"Validation failed attempt {attempt + 1}: {e.error_count()} errors"
+            )
+
             # Feed the error back into context so the model can self-correct
             messages.append({"role": "assistant", "content": raw_output})
-            messages.append({
-                "role": "user", 
-                "content": f"That response had validation errors. Fix them and return corrected JSON:\n{e}"
-            })
+            messages.append(
+                {
+                    "role": "user",
+                    "content": f"That response had validation errors. Fix them and return corrected JSON:\n{e}",
+                }
+            )
 
         except Exception as e:
             last_error = e
             logger.error(f"Unexpected error attempt {attempt + 1}: {e}")
-            time.sleep(2 ** attempt)  # exponential backoff on non-validation errors
+            time.sleep(2**attempt)  # exponential backoff on non-validation errors
 
-    raise RuntimeError(f"Extraction failed after {max_retries} attempts. Last error: {last_error}")
+    raise RuntimeError(
+        f"Extraction failed after {max_retries} attempts. Last error: {last_error}"
+    )
