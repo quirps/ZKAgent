@@ -92,15 +92,8 @@ Return only the JSON object, no markdown, no explanation.""",
 
         except Exception as e:
             last_error = e
-            error_str = str(e).lower()
-
-            if "429" in str(e) or "rate limit" in error_str:
-                wait = 10 * (attempt + 1)  # 10s, 20s, 30s
-                logger.warning(f"Rate limited, waiting {wait}s before retry")
-                time.sleep(wait)
-            else:
-                logger.error(f"Unexpected error attempt {attempt + 1}: {e}")
-                time.sleep(2**attempt)
+            logger.error(f"Unexpected error attempt {attempt + 1}: {e}")
+            time.sleep(2**attempt)  # 1s, 2s, 4s — simple backoff
 
     raise RuntimeError(
         f"Extraction failed after {max_retries} attempts. Last error: {last_error}"
