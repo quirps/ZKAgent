@@ -44,7 +44,10 @@ test.describe("Extraction — Happy Path", () => {
     expect(data.latency_ms).toBeGreaterThan(0);
   });
 
-
+test.beforeEach(async () => {
+  // Respect Groq free tier rate limits in CI (30 RPM = 1 req/2s)
+  await new Promise(resolve => setTimeout(resolve, 2500));
+});
 });
 
 

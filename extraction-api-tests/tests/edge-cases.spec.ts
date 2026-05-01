@@ -35,4 +35,8 @@ test.describe("Edge Cases & Negative Tests", () => {
     const data = await page.extractAndParse(invalidPostings.gibberish);
     expect(data.result.seniority).toBe("unknown");
   });
+  test.beforeEach(async () => {
+  // Respect Groq free tier rate limits in CI (30 RPM = 1 req/2s)
+  await new Promise(resolve => setTimeout(resolve, 2500));
+});
 });

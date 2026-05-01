@@ -2,9 +2,9 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
-  timeout: 60000,        // LLM calls are slow, give them room
-  retries: 1,            // one retry for LLM non-determinism
-  workers: 1,            // sequential — avoid hammering the rate limit
+  timeout: 60000,
+  retries: 2,          // bump to 2 retries
+  workers: 1,
   reporter: 'list',
 
   use: {
@@ -14,7 +14,6 @@ export default defineConfig({
     },
   },
 
-  // No browser projects — pure API testing
   projects: [
     {
       name: 'api',
