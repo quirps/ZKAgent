@@ -2,9 +2,9 @@ name: Playwright API Tests
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   test:
@@ -15,7 +15,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh && echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh && echo "$HOME/.cargo/bin"
+          >> $GITHUB_PATH
 
       - name: Set up Python
         run: uv python install 3.12
@@ -36,7 +37,28 @@ jobs:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
-
+      - name: Verify env loaded
+        shell: bash
+        run: |
+          echo "=== .env contents (masked) ==="
+          cat .env | sed 's/=.*/=***/'
+          echo "=== Direct extraction test ==="
+          uv run python -c "
+          import sys
+          sys.path.insert(0, '.')
+          from dotenv import load_dotenv
+          load_dotenv()
+          import os
+          print('GOOGLE key length:', len(os.getenv('GOOGLE_API_KEY', '')))
+          print('GROQ key length:', len(os.getenv('GROQ_API_KEY', '')))
+          from src.extraction.extractor import extract_job_posting
+          result = extract_job_posting('Senior Python Engineer at Acme. Remote. 160k. Python required.')
+          print('extraction OK, confidence:', result.confidence)
+          "
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
       - name: Start API server
         run: |
           uv run uvicorn src.api.main:app --port 8000 &
@@ -58,7 +80,7 @@ jobs:
           curl -s http://localhost:8000/health
 
       - name: Debug extraction endpoint
-        run: |
+        run: |+
           echo "=== Test extraction call ==="
           curl -s -X POST http://localhost:8000/extract \
             -H "Content-Type: application/json" \
