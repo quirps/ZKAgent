@@ -29,8 +29,8 @@ jobs:
           echo "GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}" > .env
           echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> .env
           echo "TAVILY_API_KEY=${{ secrets.TAVILY_API_KEY }}" >> .env
-          echo "PRIMARY_MODEL=gemini/gemini-2.5-flash" >> .env
-          echo "FAST_MODEL=groq/llama-3.3-70b-versatile" >> .env
+          echo "PRIMARY_MODEL=groq/llama-3.3-70b-versatile" >> .env
+          echo "FAST_MODEL=gemini/gemini-2.5-flash" >> .env
           echo "GROQ key length: ${#GROQ_API_KEY}"
           echo "GOOGLE key length: ${#GOOGLE_API_KEY}"
         env:
@@ -61,18 +61,18 @@ jobs:
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
       - name: Start API server
         run: |
-          uv run uvicorn src.api.main:app --port 8000 &
-          echo "Waiting for API..."
+          USE_MOCK_EXTRACTOR=true uv run uvicorn src.api.main:app --port 8000 &
           for i in {1..15}; do
-            curl -sf http://localhost:8000/health && echo "API ready" && break
+            curl -sf http://localhost:8000/health && break
             sleep 2
           done
-          echo "Health check response:"
+          echo "Health:"
           curl -s http://localhost:8000/health
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          USE_MOCK_EXTRACTOR: "true"
 
       - name: Verify API health
         run: |
