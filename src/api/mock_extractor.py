@@ -105,6 +105,11 @@ def mock_extract_job_posting(raw_text: str) -> JobPosting:
             is_disclosed=has_salary,
         ),
         required_skills=["python"] if "python" in text_lower else ["javascript"],
+        summary=(
+            "Senior Python Engineer role"
+            if "python" in text_lower
+            else "Software Engineer role"
+        ),
         nice_to_have_skills=[],
         years_experience_required=None,
         confidence=0.75 if has_conflicts else 0.95,

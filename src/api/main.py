@@ -23,8 +23,16 @@ ExtractionResponse.model_rebuild()
 # Default extractor — uses real LLM
 def get_extractor():
     import os
+    from dotenv import load_dotenv
+    from pathlib import Path
+    from loguru import logger
 
-    if os.getenv("USE_MOCK_EXTRACTOR", "").lower() == "true":
+    load_dotenv(Path(__file__).parent.parent.parent / ".env")
+
+    use_mock = os.getenv("USE_MOCK_EXTRACTOR", "").lower() == "true"
+    logger.info(f"Extractor mode: {'MOCK' if use_mock else 'LIVE'}")
+
+    if use_mock:
         from src.api.mock_extractor import mock_extract_job_posting
 
         return mock_extract_job_posting
