@@ -12,3 +12,6 @@ wheels/
 __pycache__/
 .venv/
 .env
+
+#learning
+learning

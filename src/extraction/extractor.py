@@ -58,6 +58,8 @@ Return only the JSON object, no markdown, no explanation.""",
                 model=settings.primary_model,
                 messages=messages,
                 temperature=0.1,
+                fallbacks=[settings.fast_model],
+                num_retries=1,
             )
 
             latency_ms = (time.perf_counter() - start) * 1000
