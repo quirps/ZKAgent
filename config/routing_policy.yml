@@ -1,0 +1,35 @@
+task_types:
+  simple_qa:
+    description: "Factual questions, definitions, simple lookups"
+    primary: "groq/llama-3.3-70b-versatile"
+    fallback: "gemini/gemini-2.5-flash"
+    max_tokens: 512
+    temperature: 0.1
+
+  complex_reasoning:
+    description: "Multi-step problems, analysis, synthesis"
+    primary: "gemini/gemini-2.5-flash"
+    fallback: "groq/llama-3.3-70b-versatile"
+    max_tokens: 2048
+    temperature: 0.3
+
+  code_generation:
+    description: "Writing, debugging, or explaining code"
+    primary: "gemini/gemini-2.5-flash"
+    fallback: "groq/llama-3.3-70b-versatile"
+    max_tokens: 2048
+    temperature: 0.2
+
+  extraction:
+    description: "Pulling structured data from unstructured text"
+    primary: "groq/llama-3.3-70b-versatile"
+    fallback: "gemini/gemini-2.5-flash"
+    max_tokens: 1024
+    temperature: 0.1
+
+  summarization:
+    description: "Condensing long content into shorter form"
+    primary: "groq/llama-3.3-70b-versatile"
+    fallback: "gemini/gemini-2.5-flash"
+    max_tokens: 1024
+    temperature: 0.2
