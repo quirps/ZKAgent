@@ -1,8 +1,8 @@
 task_types:
   simple_qa:
     description: "Factual questions, definitions, simple lookups"
-    primary: "groq/llama-3.3-70b-versatile"
-    fallback: "gemini/gemini-2.5-flash"
+    primary: "gemini/gemini-2.5-flash"
+    fallback: "groq/llama-3.3-70b-versatile"
     max_tokens: 512
     temperature: 0.1
 
