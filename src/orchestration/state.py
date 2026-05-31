@@ -1,6 +1,7 @@
 from typing import Annotated, Any
 from dataclasses import dataclass, field
 from langgraph.graph.message import add_messages
+import uuid
 
 
 @dataclass
@@ -39,3 +40,6 @@ class AgentState:
 
     # full message history for llm calls
     messages: Annotated[list, add_messages] = field(default_factory=list)
+
+    # Observability — generated once per graph run, shared across all nodes
+    trace_id: str = field(default_factory=lambda: str(uuid.uuid4()))
