@@ -14,15 +14,55 @@ from .models import JobPosting
 
 SYSTEM_PROMPT = """You are a precise job posting parser.
 Extract structured information from job postings exactly as described.
+
+CRITICAL RULES:
 - For salary: only mark is_disclosed=true if actual numbers are present
-- For seniority: infer from title and requirements if not stated explicitly
+- For seniority: if the posting contains contradictory signals (e.g. 'Senior'
+  AND 'Entry Level Welcome' or 'new grads welcome'), you MUST set
+  seniority=unknown and add a note to extraction_notes explaining the conflict
+- For confidence: if ANY field is ambiguous or contradictory, confidence MUST
+  be below 0.85. A posting with contradictions cannot score above 0.85.
+- For extraction_notes: ALWAYS populate this list when you detect contradictions,
+  missing fields, or ambiguous information. An empty list means the posting
+  was completely unambiguous.
 - For skills: separate required vs nice-to-have carefully
 - Never hallucinate information not present in the posting
 - If a field is genuinely unknown, use null or the UNKNOWN enum value
-- Use confidence (0.0-1.0) to reflect how complete and unambiguous the posting was
-- Use extraction_notes to flag contradictions, unusual patterns, or low-confidence fields
+
+EXAMPLE OF CONTRADICTORY SENIORITY — you must handle this pattern:
+Input: "Senior Software Engineer - New Grads Welcome. 0-5 years experience."
+Correct output must have:
+  seniority: "unknown"
+  confidence: 0.6
+  extraction_notes: ["Contradictory seniority signals: title says Senior but posting welcomes new grads and lists 0 years minimum experience"]
+
 YOU MUST RESPOND WITH ONLY A JSON OBJECT. No markdown, no backticks, no explanation.
 Start your response with { and end with }."""
+
+CONTRADICTION_PATTERNS = [
+    ("senior", "entry level"),
+    ("senior", "new grad"),
+    ("senior", "junior"),
+    ("lead", "entry level"),
+    ("principal", "entry level"),
+]
+
+
+def detect_contradictions(text: str) -> list[str]:
+    """
+    Deterministic pre-check for known contradiction patterns.
+    Injects explicit warnings into the prompt when found.
+    """
+    text_lower = text.lower()
+    found = []
+    for pattern_a, pattern_b in CONTRADICTION_PATTERNS:
+        if pattern_a in text_lower and pattern_b in text_lower:
+            found.append(
+                f"CONTRADICTION DETECTED: posting contains both "
+                f"'{pattern_a}' and '{pattern_b}' — "
+                f"seniority MUST be 'unknown', confidence MUST be below 0.7"
+            )
+    return found
 
 
 def extract_job_posting(raw_text: str) -> JobPosting:
@@ -31,6 +71,13 @@ def extract_job_posting(raw_text: str) -> JobPosting:
     Includes retry logic on validation failure.
     """
     schema = JobPosting.model_json_schema()
+
+    contradictions = detect_contradictions(raw_text)
+    contradiction_warning = ""
+    if contradictions:
+        contradiction_warning = (
+            "\n\nWARNING — CONTRADICTIONS FOUND:\n" + "\n".join(contradictions) + "\n"
+        )
 
     messages = [
         {
@@ -42,7 +89,7 @@ Schema:
 
 Job Posting:
 {raw_text}
-
+{contradiction_warning}
 Return only the JSON object, no markdown, no explanation.""",
         }
     ]

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "ext_001",
+    "input": "Senior Python Engineer at Stripe. Remote. $180k-$220k. Python, Go required. Kubernetes nice to have.",
+    "expected": {
+      "role_title": "Senior Python Engineer",
+      "company": "Stripe",
+      "seniority": "senior",
+      "remote_policy": "remote",
+      "salary": {
+        "is_disclosed": true,
+        "min_value": 180000,
+        "max_value": 220000,
+        "currency": "USD"
+      },
+      "required_skills_contains": ["python", "go"],
+      "confidence_min": 0.8
+    }
+  },
+  {
+    "id": "ext_002",
+    "input": "Join our startup as a backend developer. Competitive compensation. 2+ years Python. Remote OK.",
+    "expected": {
+      "seniority": "mid",
+      "remote_policy": "remote",
+      "salary": {
+        "is_disclosed": false
+      },
+      "required_skills_contains": ["python"],
+      "confidence_min": 0.6
+    }
+  },
+  {
+    "id": "ext_003",
+    "input": "Ingénieur Backend Senior. Paris, hybride. 90 000€ - 120 000€. Python, FastAPI, PostgreSQL requis.",
+    "expected": {
+      "seniority": "senior",
+      "remote_policy": "hybrid",
+      "salary": {
+        "is_disclosed": true,
+        "currency": "EUR",
+        "min_value": 90000,
+        "max_value": 120000
+      },
+      "required_skills_contains": ["python", "fastapi", "postgresql"],
+      "confidence_min": 0.7
+    }
+  },
+  {
+    "id": "ext_004",
+    "input": "Senior Frontend Engineer - Entry Level Welcome. JS required. $60k-$180k DOE. Hybrid NYC.",
+    "expected": {
+      "seniority": "unknown",
+      "salary": {
+        "is_disclosed": true
+      },
+      "extraction_notes_nonempty": true,
+      "confidence_max": 0.85
+    }
+  },
+  {
+    "id": "ext_005",
+    "input": "asdfjkl qwerty 12345 not a job posting",
+    "expected": {
+      "seniority": "unknown",
+      "salary": {
+        "is_disclosed": false
+      },
+      "confidence_max": 0.3
+    }
+  }
+]
